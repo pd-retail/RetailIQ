@@ -1,0 +1,30 @@
+<div
+  class="retailiq-banner-slot"
+  data-slot-id="{{ block.settings.slot_id }}"
+  data-shop="{{ shop.permanent_domain }}"
+  data-app-url="{{ block.settings.app_url | default: 'https://dev.retailiq.io' }}"
+  style="width:100%;text-align:center;">
+</div>
+<script src="{{ 'banner-slot.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "RetailIQ Banner",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "slot_id",
+      "label": "Slot ID",
+      "info": "Copy the Slot ID from the RetailIQ admin panel."
+    },
+    {
+      "type": "text",
+      "id": "app_url",
+      "label": "App URL",
+      "default": "https://dev.retailiq.io",
+      "info": "Your RetailIQ app URL."
+    }
+  ]
+}
+{% endschema %}
