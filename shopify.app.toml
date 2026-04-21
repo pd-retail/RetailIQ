@@ -2,7 +2,7 @@
 
 client_id = "b51bd3bf0258aa0a29b543340a1b8c24"
 name = "RetailIQ"
-application_url = "https://example.com"
+application_url = "https://retailiq-production.up.railway.app"
 embedded = true
 
 [build]
@@ -37,5 +37,5 @@ api_version = "2026-07"
 scopes = "write_products,write_metaobjects,write_metaobject_definitions"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://retailiq-production.up.railway.app/api/auth" ]
 
