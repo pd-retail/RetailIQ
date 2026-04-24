@@ -74,97 +74,173 @@ async function generateBannerCanvas(
     canvas.height = height;
     const ctx = canvas.getContext("2d")!;
 
+    const drawRoundedRect = (
+      x: number, y: number, w: number, h: number, r: number
+    ) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    };
+
     const draw = (img?: HTMLImageElement) => {
-      // White background
+      const aspectRatio = width / height;
+      // Horizontal layout for leaderboard (728×90), billboard (970×250),
+      // and mobile leaderboard (320×50)
+      const isHorizontal = aspectRatio > 2.5;
+
+      // Background
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, width, height);
 
-      // Light border
+      // Border
       ctx.strokeStyle = "#dddddd";
       ctx.lineWidth = 1;
       ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
 
-      const padding = Math.round(width * 0.05);
-      const imgAreaH = Math.round(height * 0.52);
+      if (isHorizontal) {
+        // ── Horizontal layout ─────────────────────────────────────
+        // [ image | title + price | Shop Now btn ]
+        const pad = Math.round(height * 0.1);
+        const imgSize = height - pad * 2;
 
-      // Product image
-      if (img) {
-        const scale = Math.min(
-          (width - padding * 2) / img.width,
-          (imgAreaH - padding) / img.height
-        );
-        const imgW = img.width * scale;
-        const imgH = img.height * scale;
-        const imgX = (width - imgW) / 2;
-        const imgY = padding / 2 + (imgAreaH - imgH) / 2;
-        ctx.drawImage(img, imgX, imgY, imgW, imgH);
-      }
-
-      // Divider line
-      ctx.strokeStyle = "#eeeeee";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(padding, imgAreaH);
-      ctx.lineTo(width - padding, imgAreaH);
-      ctx.stroke();
-
-      // Product title (up to 2 lines)
-      const titleSize = Math.max(11, Math.round(height * 0.056));
-      ctx.fillStyle = "#111111";
-      ctx.font = `${titleSize}px Arial, sans-serif`;
-      ctx.textAlign = "center";
-      const lineH = titleSize * 1.3;
-      const words = productTitle.split(" ");
-      let line = "";
-      let lines: string[] = [];
-      for (const word of words) {
-        const test = line ? `${line} ${word}` : word;
-        if (ctx.measureText(test).width > width - padding * 2 && line) {
-          lines.push(line);
-          line = word;
-          if (lines.length === 2) break;
-        } else {
-          line = test;
+        // Product image (left)
+        if (img) {
+          const scale = Math.min(imgSize / img.width, imgSize / img.height);
+          const imgW = img.width * scale;
+          const imgH = img.height * scale;
+          const imgX = pad + (imgSize - imgW) / 2;
+          const imgY = pad + (imgSize - imgH) / 2;
+          ctx.drawImage(img, imgX, imgY, imgW, imgH);
         }
+
+        // CTA button (right)
+        const btnW = Math.round(width * 0.16);
+        const btnH = Math.round(height * 0.56);
+        const btnX = width - pad - btnW;
+        const btnY = (height - btnH) / 2;
+        ctx.fillStyle = "#FF9900";
+        drawRoundedRect(btnX, btnY, btnW, btnH, 3);
+        ctx.fill();
+        const btnFontSize = Math.max(9, Math.round(height * 0.2));
+        ctx.fillStyle = "#111111";
+        ctx.font = `bold ${btnFontSize}px Arial, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText("Shop Now", btnX + btnW / 2, btnY + btnH / 2 + btnFontSize * 0.35);
+
+        // Divider
+        const divX = pad + imgSize + pad;
+        ctx.strokeStyle = "#eeeeee";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(divX, pad);
+        ctx.lineTo(divX, height - pad);
+        ctx.stroke();
+
+        // Text area (center)
+        const textX = divX + pad;
+        const textMaxW = btnX - pad - textX;
+        const titleSize = Math.max(10, Math.round(height * 0.22));
+        ctx.fillStyle = "#111111";
+        ctx.font = `bold ${titleSize}px Arial, sans-serif`;
+        ctx.textAlign = "left";
+
+        // Truncate title to one line
+        let title = productTitle;
+        while (ctx.measureText(title).width > textMaxW && title.length > 0) {
+          title = title.slice(0, -1);
+        }
+        if (title !== productTitle) title = title.slice(0, -1) + "…";
+        ctx.fillText(title, textX, height / 2 - titleSize * 0.1);
+
+        // Price
+        if (price) {
+          const priceSize = Math.max(9, Math.round(height * 0.18));
+          ctx.fillStyle = "#B12704";
+          ctx.font = `bold ${priceSize}px Arial, sans-serif`;
+          ctx.fillText(`$${price}`, textX, height / 2 + priceSize * 1.1);
+        }
+
+      } else {
+        // ── Vertical layout ───────────────────────────────────────
+        // [ image | title | price | Shop Now btn ]
+        const padding = Math.round(width * 0.05);
+        const imgAreaH = Math.round(height * 0.52);
+
+        // Product image
+        if (img) {
+          const scale = Math.min(
+            (width - padding * 2) / img.width,
+            (imgAreaH - padding) / img.height
+          );
+          const imgW = img.width * scale;
+          const imgH = img.height * scale;
+          const imgX = (width - imgW) / 2;
+          const imgY = padding / 2 + (imgAreaH - imgH) / 2;
+          ctx.drawImage(img, imgX, imgY, imgW, imgH);
+        }
+
+        // Divider
+        ctx.strokeStyle = "#eeeeee";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, imgAreaH);
+        ctx.lineTo(width - padding, imgAreaH);
+        ctx.stroke();
+
+        // Title (up to 2 lines)
+        const titleSize = Math.max(11, Math.round(height * 0.056));
+        ctx.fillStyle = "#111111";
+        ctx.font = `${titleSize}px Arial, sans-serif`;
+        ctx.textAlign = "center";
+        const lineH = titleSize * 1.3;
+        const words = productTitle.split(" ");
+        let line = "";
+        let lines: string[] = [];
+        for (const word of words) {
+          const test = line ? `${line} ${word}` : word;
+          if (ctx.measureText(test).width > width - padding * 2 && line) {
+            lines.push(line);
+            line = word;
+            if (lines.length === 2) break;
+          } else {
+            line = test;
+          }
+        }
+        if (lines.length < 2) lines.push(line);
+        const titleY = imgAreaH + lineH + 2;
+        lines.slice(0, 2).forEach((l, i) => {
+          ctx.fillText(l, width / 2, titleY + i * lineH);
+        });
+
+        // Price
+        const priceSize = Math.max(13, Math.round(height * 0.072));
+        ctx.fillStyle = "#B12704";
+        ctx.font = `bold ${priceSize}px Arial, sans-serif`;
+        const priceY = titleY + lines.length * lineH + priceSize * 0.3;
+        ctx.fillText(price ? `$${price}` : "", width / 2, priceY);
+
+        // Shop Now button
+        const btnH = Math.round(height * 0.12);
+        const btnY = height - padding * 0.5 - btnH;
+        const btnX = padding;
+        const btnW = width - padding * 2;
+        ctx.fillStyle = "#FF9900";
+        drawRoundedRect(btnX, btnY, btnW, btnH, 4);
+        ctx.fill();
+        const btnFontSize = Math.max(10, Math.round(height * 0.052));
+        ctx.fillStyle = "#111111";
+        ctx.font = `bold ${btnFontSize}px Arial, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText("Shop Now", width / 2, btnY + btnH / 2 + btnFontSize * 0.35);
       }
-      if (lines.length < 2) lines.push(line);
-      const titleY = imgAreaH + lineH + 2;
-      lines.slice(0, 2).forEach((l, i) => {
-        ctx.fillText(l, width / 2, titleY + i * lineH);
-      });
-
-      // Price
-      const priceSize = Math.max(13, Math.round(height * 0.072));
-      ctx.fillStyle = "#B12704";
-      ctx.font = `bold ${priceSize}px Arial, sans-serif`;
-      const priceY = titleY + lines.length * lineH + priceSize * 0.3;
-      ctx.fillText(price ? `$${price}` : "", width / 2, priceY);
-
-      // Shop Now button
-      const btnH = Math.round(height * 0.12);
-      const btnY = height - padding * 0.5 - btnH;
-      const btnRadius = 4;
-      const btnX = padding;
-      const btnW = width - padding * 2;
-
-      ctx.fillStyle = "#FF9900";
-      ctx.beginPath();
-      ctx.moveTo(btnX + btnRadius, btnY);
-      ctx.lineTo(btnX + btnW - btnRadius, btnY);
-      ctx.arcTo(btnX + btnW, btnY, btnX + btnW, btnY + btnRadius, btnRadius);
-      ctx.lineTo(btnX + btnW, btnY + btnH - btnRadius);
-      ctx.arcTo(btnX + btnW, btnY + btnH, btnX + btnW - btnRadius, btnY + btnH, btnRadius);
-      ctx.lineTo(btnX + btnRadius, btnY + btnH);
-      ctx.arcTo(btnX, btnY + btnH, btnX, btnY + btnH - btnRadius, btnRadius);
-      ctx.lineTo(btnX, btnY + btnRadius);
-      ctx.arcTo(btnX, btnY, btnX + btnRadius, btnY, btnRadius);
-      ctx.closePath();
-      ctx.fill();
-
-      const btnFontSize = Math.max(10, Math.round(height * 0.052));
-      ctx.fillStyle = "#111111";
-      ctx.font = `bold ${btnFontSize}px Arial, sans-serif`;
-      ctx.fillText("Shop Now", width / 2, btnY + btnH / 2 + btnFontSize * 0.35);
 
       const dataUrl = canvas.toDataURL("image/png");
       resolve({ preview: dataUrl, base64: dataUrl.split(",")[1] });
