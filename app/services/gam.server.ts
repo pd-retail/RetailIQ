@@ -175,6 +175,42 @@ export async function getOrCreateOrder(shop: string): Promise<string | null> {
   if (connection.gamOrderId) return connection.gamOrderId;
   const { token, networkCode } = await getGamClient(shop);
   const advertiserId = await getOrCreateAdvertiser(shop);
+  const orderName = `RetailIQ - ${shop}`;
+
+  // Look up existing order in GAM by name before trying to create
+  const lookupSoap = `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Header>
+    <ns1:RequestHeader xmlns:ns1="https://www.google.com/apis/ads/publisher/${API_VERSION}">
+      <ns1:networkCode>${networkCode}</ns1:networkCode>
+      <ns1:applicationName>RetailIQ</ns1:applicationName>
+    </ns1:RequestHeader>
+  </soapenv:Header>
+  <soapenv:Body>
+    <getOrdersByStatement xmlns="https://www.google.com/apis/ads/publisher/${API_VERSION}">
+      <filterStatement>
+        <query>WHERE name = '${orderName}' LIMIT 1</query>
+      </filterStatement>
+    </getOrdersByStatement>
+  </soapenv:Body>
+</soapenv:Envelope>`;
+  const lookupRes = await fetch(`${GAM_ENDPOINT}/OrderService`, {
+    method: "POST",
+    headers: { "Content-Type": "text/xml", "SOAPAction": "", "Authorization": `Bearer ${token}` },
+    body: lookupSoap,
+  });
+  const lookupText = await lookupRes.text();
+  const existingOrderMatch = lookupText.match(/<id>(\d+)<\/id>/);
+  if (existingOrderMatch) {
+    const existingOrderId = existingOrderMatch[1];
+    console.log("GAM reusing existing order ID:", existingOrderId);
+    await db.gamConnection.update({
+      where: { shop },
+      data: { gamOrderId: existingOrderId },
+    });
+    return existingOrderId;
+  }
+
   const userSoap = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
   <soapenv:Header>
@@ -208,7 +244,7 @@ export async function getOrCreateOrder(shop: string): Promise<string | null> {
   <soapenv:Body>
     <createOrders xmlns="https://www.google.com/apis/ads/publisher/${API_VERSION}">
       <orders>
-        <name>RetailIQ - ${shop}</name>
+        <name>${orderName}</name>
         <advertiserId>${advertiserId}</advertiserId>
         <traffickerId>${userId}</traffickerId>
       </orders>
