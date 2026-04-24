@@ -272,9 +272,6 @@ export async function createLineItem(
         unlimitedEndDateTime: true,
         creativeRotationType: "EVEN",
         lineItemType: "HOUSE",
-        goalType: "DAILY",
-        unitType: "PERCENTAGE",
-        units: "100",
         costPerUnit: { currencyCode: "USD", microAmount: 0 },
         costType: "CPM",
         creativePlaceholders: [
@@ -284,7 +281,7 @@ export async function createLineItem(
             creativeSizeType: "PIXEL",
           },
         ],
-        primaryGoal: { goalType: "DAILY", unitType: "IMPRESSIONS", units: 100 },
+        primaryGoal: { goalType: "DAILY", unitType: "PERCENTAGE", units: 100 },
         targeting: {
           inventoryTargeting: {
             targetedAdUnits: [{ adUnitId, includeDescendants: true }],
@@ -386,33 +383,6 @@ export async function approveOrder(shop: string, orderId: string): Promise<boole
   return text.includes("<numChanges>");
 }
 
-// TEMPORARY DEBUG FUNCTION — remove after diagnosis
-export async function debugGetLineItem(shop: string): Promise<void> {
-  const { token, networkCode } = await getGamClient(shop);
-  const soap = `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-  <soapenv:Header>
-    <ns1:RequestHeader xmlns:ns1="https://www.google.com/apis/ads/publisher/${API_VERSION}">
-      <ns1:networkCode>${networkCode}</ns1:networkCode>
-      <ns1:applicationName>RetailIQ</ns1:applicationName>
-    </ns1:RequestHeader>
-  </soapenv:Header>
-  <soapenv:Body>
-    <getLineItemsByStatement xmlns="https://www.google.com/apis/ads/publisher/${API_VERSION}">
-      <filterStatement>
-        <query>LIMIT 1</query>
-      </filterStatement>
-    </getLineItemsByStatement>
-  </soapenv:Body>
-</soapenv:Envelope>`;
-  const res = await fetch(`${GAM_ENDPOINT}/LineItemService`, {
-    method: "POST",
-    headers: { "Content-Type": "text/xml", "SOAPAction": "", "Authorization": `Bearer ${token}` },
-    body: soap,
-  });
-  const text = await res.text();
-  console.log("DEBUG LINE ITEM:", text);
-}
 export async function runGamReport(
   shop: string,
   startDate: string,
