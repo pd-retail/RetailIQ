@@ -21,9 +21,9 @@ export default function App() {
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>A short heading about [your app]</h1>
+        <h1 className={styles.heading}>RetailIQ — Retail Media for Shopify</h1>
         <p className={styles.text}>
-          A tagline about [your app] that describes your value proposition.
+          Turn your store into an ad platform. Let your suppliers sponsor banner placements and grow revenue without discounting.
         </p>
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">
@@ -39,16 +39,13 @@ export default function App() {
         )}
         <ul className={styles.list}>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Sponsored banners</strong>. Let suppliers auto-generate and serve branded banners directly on your storefront.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Google Ad Manager integration</strong>. Banners are served through GAM for reliable delivery and full reporting.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Revenue without discounting</strong>. Monetise your store traffic by charging suppliers for premium placements.
           </li>
         </ul>
       </div>
