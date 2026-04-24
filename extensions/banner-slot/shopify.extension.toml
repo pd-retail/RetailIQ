@@ -1,0 +1,7 @@
+api_version = "2025-01"
+
+[[extensions]]
+type = "theme"
+name = "banner-slot"
+handle = "banner-slot"
+uid = "df9dfb6d-e5d4-52d3-5692-dc4b02f7fe329ffe3326"
