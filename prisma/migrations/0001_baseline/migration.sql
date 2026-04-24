@@ -1,11 +1,11 @@
 -- CreateTable
 CREATE TABLE "Session" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "shop" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "isOnline" BOOLEAN NOT NULL DEFAULT false,
     "scope" TEXT,
-    "expires" TIMESTAMP(3),
+    "expires" DATETIME,
     "accessToken" TEXT NOT NULL,
     "userId" BIGINT,
     "firstName" TEXT,
@@ -16,31 +16,27 @@ CREATE TABLE "Session" (
     "collaborator" BOOLEAN DEFAULT false,
     "emailVerified" BOOLEAN DEFAULT false,
     "refreshToken" TEXT,
-    "refreshTokenExpires" TIMESTAMP(3),
-
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    "refreshTokenExpires" DATETIME
 );
 
 -- CreateTable
 CREATE TABLE "AdSlot" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "shop" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "placement" TEXT NOT NULL,
     "width" INTEGER NOT NULL,
     "height" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     "gamAdUnitId" TEXT,
-    "gamAdUnitCode" TEXT,
-
-    CONSTRAINT "AdSlot_pkey" PRIMARY KEY ("id")
+    "gamAdUnitCode" TEXT
 );
 
 -- CreateTable
 CREATE TABLE "Campaign" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "shop" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slotId" TEXT NOT NULL,
@@ -52,30 +48,26 @@ CREATE TABLE "Campaign" (
     "bannerUrl" TEXT,
     "template" TEXT NOT NULL DEFAULT 'spotlight',
     "status" TEXT NOT NULL DEFAULT 'draft',
-    "startAt" TIMESTAMP(3),
-    "endAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "startAt" DATETIME,
+    "endAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     "gamOrderId" TEXT,
     "gamLineItemId" TEXT,
-    "gamCreativeId" TEXT,
-
-    CONSTRAINT "Campaign_pkey" PRIMARY KEY ("id")
+    "gamCreativeId" TEXT
 );
 
 -- CreateTable
 CREATE TABLE "GamConnection" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "shop" TEXT NOT NULL,
     "networkCode" TEXT NOT NULL,
     "refreshToken" TEXT NOT NULL,
     "accessToken" TEXT,
-    "tokenExpiry" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "gamOrderId" TEXT,
-
-    CONSTRAINT "GamConnection_pkey" PRIMARY KEY ("id")
+    "tokenExpiry" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "gamOrderId" TEXT
 );
 
 -- CreateIndex
