@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "b51bd3bf0258aa0a29b543340a1b8c24"
-name = "RetailIQ"
+client_id = "d630a13c32b5693677a53b751d1547be"
+name = "RetailIQ_v2"
 application_url = "https://retailiq-production-47a7.up.railway.app"
 embedded = true
 
