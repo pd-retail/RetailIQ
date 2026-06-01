@@ -1,0 +1,37 @@
+<div
+  class="retailiq-banner-slot"
+  data-slot-id="{{ block.settings.slot_id }}"
+  data-shop="{{ shop.permanent_domain }}"
+  data-app-url="{{ block.settings.app_url | default: 'https://retailiq-production-47a7.up.railway.app' }}"
+  style="width:100%;text-align:center;">
+</div>
+{% if request.design_mode %}
+  <div style="background:#f4f6f8;border:2px dashed #c4cdd6;border-radius:4px;padding:20px;text-align:center;color:#6d7175;font-family:sans-serif;font-size:13px;">
+    <strong>RetailIQ Banner</strong><br>
+    Ad will display here on the live storefront.<br>
+    Make sure Slot ID is set in block settings.
+  </div>
+{% endif %}
+<script src="{{ 'banner-slot.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "RetailIQ Banner",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "slot_id",
+      "label": "Slot ID",
+      "info": "Copy the Slot ID from the RetailIQ admin panel."
+    },
+    {
+      "type": "text",
+      "id": "app_url",
+      "label": "App URL",
+      "default": "https://retailiq-production-47a7.up.railway.app",
+      "info": "Your RetailIQ app URL."
+    }
+  ]
+}
+{% endschema %}
